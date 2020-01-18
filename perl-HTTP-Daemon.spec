@@ -1,11 +1,17 @@
 Name:           perl-HTTP-Daemon
 Version:        6.01
-Release:        5%{?dist}
+Release:        7%{?dist}
 Summary:        Simple HTTP server class
 License:        GPL+ or Artistic
 Group:          Development/Libraries
 URL:            http://search.cpan.org/dist/HTTP-Daemon/
 Source0:        http://www.cpan.org/authors/id/G/GA/GAAS/HTTP-Daemon-%{version}.tar.gz
+# Support IPv6, bug #1413065, CPAN RT#91699, CPAN RT#71395,
+# proposed to upstream
+Patch0:         HTTP-Daemon-6.01-Add-IPv6-support.patch
+# Accept undefined and empty-string LocalAddr as IO::Socket::INET does,
+# CPAN RT#91699, CPAN RT#123069
+Patch1:         HTTP-Daemon-6.01-Handle-undef-and-empty-LocalAddr.patch
 BuildArch:      noarch
 BuildRequires:  perl(Carp)
 BuildRequires:  perl(ExtUtils::MakeMaker)
@@ -13,15 +19,15 @@ BuildRequires:  perl(HTTP::Date) >= 6
 BuildRequires:  perl(HTTP::Request) >= 6
 BuildRequires:  perl(HTTP::Response) >= 6
 BuildRequires:  perl(HTTP::Status) >= 6
-BuildRequires:  perl(IO::Socket)
+BuildRequires:  perl(IO::Socket::IP)
 BuildRequires:  perl(LWP::MediaTypes) >= 6
+BuildRequires:  perl(Socket)
 BuildRequires:  perl(Sys::Hostname)
 # Tests only:
 BuildRequires:  perl(Config)
 # Do not depend on perl(LWP::UserAgent), perl(LWP::RobotUA) to break
 # circural dependency, then only t/chunked.t is executed.
 BuildRequires:  perl(Test::More)
-BuildRequires:  perl(Socket)
 BuildRequires:  perl(IO::Socket::INET)
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 Requires:       perl(HTTP::Date) >= 6
@@ -49,6 +55,8 @@ IO::Socket::INET, so you can perform socket operations directly on it too.
 
 %prep
 %setup -q -n HTTP-Daemon-%{version}
+%patch0 -p1
+%patch1 -p1
 
 %build
 perl Makefile.PL INSTALLDIRS=vendor
@@ -69,6 +77,13 @@ make test
 %{_mandir}/man3/*
 
 %changelog
+* Mon Sep 18 2017 Petr Pisar <ppisar@redhat.com> - 6.01-7
+- Accept undefined and empty-string LocalAddr as IO::Socket::INET does
+  (bug #1413065)
+
+* Tue Jan 17 2017 Petr Pisar <ppisar@redhat.com> - 6.01-6
+- Support IPv6 (bug #1413065)
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 6.01-5
 - Mass rebuild 2013-12-27
 

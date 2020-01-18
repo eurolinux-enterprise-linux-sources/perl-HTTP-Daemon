@@ -1,6 +1,6 @@
 Name:           perl-HTTP-Daemon
 Version:        6.01
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Simple HTTP server class
 License:        GPL+ or Artistic
 Group:          Development/Libraries
@@ -12,6 +12,8 @@ Patch0:         HTTP-Daemon-6.01-Add-IPv6-support.patch
 # Accept undefined and empty-string LocalAddr as IO::Socket::INET does,
 # CPAN RT#91699, CPAN RT#123069
 Patch1:         HTTP-Daemon-6.01-Handle-undef-and-empty-LocalAddr.patch
+# Fix formatting specific non-local addresses, bug #1578026, CPAN RT#125242
+Patch2:         HTTP-Daemon-6.01-Resolve-specific-socket-addresses-correctly.patch
 BuildArch:      noarch
 BuildRequires:  perl(Carp)
 BuildRequires:  perl(ExtUtils::MakeMaker)
@@ -57,6 +59,7 @@ IO::Socket::INET, so you can perform socket operations directly on it too.
 %setup -q -n HTTP-Daemon-%{version}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 perl Makefile.PL INSTALLDIRS=vendor
@@ -77,6 +80,9 @@ make test
 %{_mandir}/man3/*
 
 %changelog
+* Thu May 24 2018 Petr Pisar <ppisar@redhat.com> - 6.01-8
+- Fix formatting numerical non-local specific IPv6 addresses (bug #1578026)
+
 * Mon Sep 18 2017 Petr Pisar <ppisar@redhat.com> - 6.01-7
 - Accept undefined and empty-string LocalAddr as IO::Socket::INET does
   (bug #1413065)
